@@ -1,0 +1,10 @@
+{
+  "name": "dhtm_ui",
+  "version": "0.0.1",
+  "description": "visualization for dhtm",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^3.1.0",
+    "zeromq": "^5.2.0"
+  }
+}
