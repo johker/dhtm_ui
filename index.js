@@ -5,9 +5,15 @@ const io = require('socket.io')(http);
 const port = process.env.PORT || 3000;
 const zmq = require('zeromq');
 
-var n = 1024;
-var buffer = new ArrayBuffer(n>>3);
-let bufferView = new Uint8Array(buffer);
+const msgSize = 1032;
+// TODO: Auto-Generate:
+const PAYLOAD_OFFSET = 8;
+
+var buffer = new ArrayBuffer(msgSize>>3);
+var arrayView = new Uint8Array(buffer);
+// var id_buf = new ArrayBuffer(2);
+var dataView = new DataView(buffer);
+
 
 var publisher = zmq.socket("pub");
 publisher.connect("tcp://127.0.0.1:6000");
@@ -39,45 +45,45 @@ function bclear(num, bit){
 }
 
 function bit_set(bufferIdx) {
-	byteIdx = bufferIdx >> 3;
+	byteIdx = (bufferIdx >> 3) + PAYLOAD_OFFSET;
 	bitIdx = bufferIdx % 8;
-	bValue = bufferView[byteIdx];
-	bValue = bufferView[byteIdx];
-	console.log('Old: ' + bValue.toString(2));
+	bValue = arrayView[byteIdx];
 	bValue = bValue | 1 << bitIdx;
-	console.log('New: ' + bValue.toString(2));
-	bufferView[byteIdx] = bValue;
+	arrayView[byteIdx] = bValue;
 }
-function bit_clear(bufferIdx) { 
-	byteIdx = bufferIdx >> 3;
+function bit_clear(bufferIdx) {
+	byteIdx = bufferIdx >> 3 + PAYLOAD_OFFSET;
 	bitIdx = bufferIdx % 8;
-	bValue = bufferView[byteIdx];
-	console.log('Old: ' + bValue.toString(2));
+	bValue = arrayView[byteIdx];
 	bValue = bValue & ~(1 << bitIdx);
-	console.log('New: ' + bValue.toString(2));
-	bufferView[byteIdx] = bValue;
+	arrayView[byteIdx] = bValue;
 } 
 
 function ab2str(buf) {
 	return String.fromCharCode.apply(null, new Uint16Array(buf));
 } 
 
+function printBuffer() {
+	var bufStr = Array.apply([], arrayView).join(",");
+	console.log('Buffer =  ' + bufStr);
+}
+
 io.on('connection', (socket) => {
 	console.log('a user connected'); 
 	socket.on('cmd', msg => { 
-		console.log('Message ' + msg); 
+	console.log('Message ' + msg); 
+	dataView.setUint16(0,623);
 	bit_set(3);
 	bit_set(5);
 	bit_set(7);
 	bit_set(8);
 	bit_clear(5);
-	
+	var bufStr = Array.apply([], arrayView).join(",");
+	console.log('Buffer =  ' + bufStr);
 	var filter = 10001
 	      , temperature = 23
 	      , relhumidity = 40
-	      , update      = `${filter} ${msg} ${buffer}`;
-	console.log(update);
-
+	      , update      = `${filter} ${msg} ${bufStr}`;
 	publisher.send(update);
 	
 	// io.emit('chat message', msg);
