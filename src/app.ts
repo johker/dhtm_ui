@@ -6,15 +6,9 @@ const port = process.env.PORT || 3000;
 const zmq = require('zeromq');
 const util = require('util');
 const {StringDecoder} = require('string_decoder');
-
+import * as MSG from '../dhtm_msg/ts/messageConstants';
 
 const msgSize = 1032;
-// TODO: Auto-Generate:
-const ID_OFFSET = 0;
-const TYPE_OFFSET = 2;
-const CMD_OFFSET = 4;
-const KEY_OFFSET = 6;
-const PAYLOAD_OFFSET = 8;
 
 var buffer = new ArrayBuffer(msgSize>>3);
 var arrayView = new Uint8Array(buffer);
@@ -60,7 +54,7 @@ function bclear(num, bit){
 }
 
 function bit_set(bufferIdx: number) {
-	let byteIdx: number = (bufferIdx >> 3) + PAYLOAD_OFFSET;
+	let byteIdx: number = (bufferIdx >> 3) + MSG.PAYLOAD_OFFSET;
 	let bitIdx: number = bufferIdx % 8;
 	let bValue: number = arrayView[byteIdx];
 	bValue = bValue | 1 << bitIdx;
@@ -68,7 +62,7 @@ function bit_set(bufferIdx: number) {
 }
 
 function bit_clear(bufferIdx: number) {
-	let byteIdx: number = bufferIdx >> 3 + PAYLOAD_OFFSET;
+	let byteIdx: number = bufferIdx >> 3 + MSG.PAYLOAD_OFFSET;
 	let bitIdx: number = bufferIdx % 8;
 	let bValue: number = arrayView[byteIdx];
 	bValue = bValue & ~(1 << bitIdx);
@@ -85,15 +79,15 @@ io.on('connection', (socket) => {
 	console.log('a user connected'); 
 	socket.on('cmd', msg => { 
 	console.log('RECV UI: ' + msg); 
-	let msg_id = parseInt(msg);
-	let msg_type = 2;
-	let msg_cmd = 3; 
-	let msg_key = 4;
+	let msg_id: number = parseInt(msg);
+	let msg_type: number = 2;
+	let msg_cmd: number = 3; 
+	let msg_key: number = 4;
 
-	dataView.setUint16(ID_OFFSET,msg_id);
-	dataView.setUint16(TYPE_OFFSET,msg_type);
-	dataView.setUint16(CMD_OFFSET,msg_cmd);
-	dataView.setUint16(KEY_OFFSET,msg_key);
+	dataView.setUint16(MSG.ID_OFFSET,msg_id);
+	dataView.setUint16(MSG.TYPE_OFFSET,msg_type);
+	dataView.setUint16(MSG.CMD_OFFSET,msg_cmd);
+	dataView.setUint16(MSG.KEY_OFFSET,msg_key);
 
 	bit_set(3);
 	bit_set(5);
