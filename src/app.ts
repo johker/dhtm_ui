@@ -6,7 +6,7 @@ const port = process.env.PORT || 3000;
 const zmq = require('zeromq');
 const util = require('util');
 const {StringDecoder} = require('string_decoder');
-import * as MSG from '../dhtm_msg/ts/messageConstants';
+import * as MSG from '../dhtm_msg/ts/msg';
 
 const msgSize = 1032;
 
@@ -76,18 +76,15 @@ function printBuffer() {
 }
 
 io.on('connection', (socket) => {
-	console.log('a user connected'); 
+	console.log('On Connection'); 
 	socket.on('cmd', msg => { 
 	console.log('RECV UI: ' + msg); 
-	let msg_id: number = parseInt(msg);
-	let msg_type: number = 2;
-	let msg_cmd: number = 3; 
-	let msg_key: number = 4;
+	let msg_id: number = 1;
 
-	dataView.setUint16(MSG.ID_OFFSET,msg_id);
-	dataView.setUint16(MSG.TYPE_OFFSET,msg_type);
-	dataView.setUint16(MSG.CMD_OFFSET,msg_cmd);
-	dataView.setUint16(MSG.KEY_OFFSET,msg_key);
+	dataView.setUint16(MSG.ID_OFFSET,1);
+	dataView.setUint16(MSG.TYPE_OFFSET, MSG.MessageType.DATA);
+	dataView.setUint16(MSG.CMD_OFFSET,MSG.MessageCommand.INPUT);
+	dataView.setUint16(MSG.KEY_OFFSET, MSG.MessageKey.S_INPUT);
 
 	bit_set(3);
 	bit_set(5);
@@ -96,10 +93,14 @@ io.on('connection', (socket) => {
 	bit_clear(5);
 
 	const decoder = new StringDecoder('utf8');
-	const cent = Buffer.from(buffer);
-	
-	publisher.send(cent);
+	const outb  = Buffer.from(buffer);
+	let topic = MSG.MessageType.UNDEFINED;
+	if (msg.localCompare("data")) {
+		topic = MSG.MessageType.DATA;
+	}
+	console.log('TOPIC: ' + topic.toString());
 	console.log('SENT ZMQ: ' + printBuffer());
+	publisher.send([topic, outb]);
 	
 	// io.emit('chat message', msg);
   });
