@@ -6,7 +6,7 @@ const port = process.env.PORT || 3000;
 const zmq = require('zeromq');
 const util = require('util');
 const {StringDecoder} = require('string_decoder');
-import * as MSG from '../dhtm_msg/ts/msg';
+const MSG = require('./dhtm_msg/js/msg.js');
 
 const msgSize = 1032;
 
@@ -35,7 +35,7 @@ subscriber.on('message', function(message) {
 	console.log('REC ZMQ: ' + printBuffer());
 });
 
-app.use(express.static(__dirname + '../public'));
+app.use(express.static(__dirname + '/public'));
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
@@ -53,18 +53,18 @@ function bclear(num, bit){
 	    return num & ~(1<<bit);
 }
 
-function bit_set(bufferIdx: number) {
-	let byteIdx: number = (bufferIdx >> 3) + MSG.PAYLOAD_OFFSET;
-	let bitIdx: number = bufferIdx % 8;
-	let bValue: number = arrayView[byteIdx];
+function bit_set(bufferIdx) {
+	let byteIdx = (bufferIdx >> 3) + MSG.PAYLOAD_OFFSET;
+	let bitIdx = bufferIdx % 8;
+	let bValue = arrayView[byteIdx];
 	bValue = bValue | 1 << bitIdx;
 	arrayView[byteIdx] = bValue;
 }
 
-function bit_clear(bufferIdx: number) {
-	let byteIdx: number = bufferIdx >> 3 + MSG.PAYLOAD_OFFSET;
-	let bitIdx: number = bufferIdx % 8;
-	let bValue: number = arrayView[byteIdx];
+function bit_clear(bufferIdx) {
+	let byteIdx = bufferIdx >> 3 + MSG.PAYLOAD_OFFSET;
+	let bitIdx = bufferIdx % 8;
+	let bValue = arrayView[byteIdx];
 	bValue = bValue & ~(1 << bitIdx);
 	arrayView[byteIdx] = bValue;
 } 
@@ -79,7 +79,7 @@ io.on('connection', (socket) => {
 	console.log('On Connection'); 
 	socket.on('cmd', msg => { 
 	console.log('RECV UI: ' + msg); 
-	let msg_id: number = 1;
+	let msg_id = 1;
 
 	dataView.setUint16(MSG.ID_OFFSET,1);
 	dataView.setUint16(MSG.TYPE_OFFSET, MSG.MessageType.DATA);
@@ -95,7 +95,7 @@ io.on('connection', (socket) => {
 	const decoder = new StringDecoder('utf8');
 	const outb  = Buffer.from(buffer);
 	let topic = MSG.MessageType.UNDEFINED;
-	if (msg.localCompare("data")) {
+	if (String(msg).localeCompare("data")) {
 		topic = MSG.MessageType.DATA;
 	}
 	console.log('TOPIC: ' + topic.toString());
