@@ -9,7 +9,6 @@ const {StringDecoder} = require('string_decoder');
 
 const MSG = require('./dhtm_msg/js/msg.js');
 const Message = require('./message.js');
-const zeroPad = (num, places) => String(num).padStart(places, '0');
 
 
 const msgSize = MSG.PAYLOAD_OFFSET + MSG.DEF_PL_SIZE;
@@ -25,13 +24,13 @@ var subscriber = zmq.socket('sub');
 subscriber.connect('tcp://127.0.0.1:5555');
 console.log("Subscriber bound to port 5555");
 
-var sub_topic = Buffer.from(zeroPad(MSG.MessageType.DATA,3) + '.' + zeroPad(MSG.MessageCommand,3));
-subscriber.subscribe(sub_topic);
+var topic = Buffer.from(MSG.MessageType.DATA.toString()); 
+subscriber.subscribe(topic);
 
 subscriber.on('message', function(topic, message) {
 	msg.parse(message);
 	console.log('TOPIC: ' + topic);
-	console.log('REC ZMQ: ' + msg.toString());
+	console.log('REC ZMQ: ' + m.toString());
 });
 
 app.use(express.static(__dirname + '/public'));
@@ -42,8 +41,8 @@ app.get('/', (req, res) => {
 
 io.on('connection', (socket) => {
 	console.log('On Connection'); 
-	socket.on('cmd', cmd => { 
-	console.log('RECV UI: ' + cmd); 
+	socket.on('cmd', msg => { 
+	console.log('RECV UI: ' + msg); 
 
 	msg.create_header(MSG.MessageType.DATA, MSG.MessageCommand.INPUT, MSG.MessageKey.S_INPUT);
 
@@ -56,15 +55,15 @@ io.on('connection', (socket) => {
 	const decoder = new StringDecoder('utf8');
 	const outb  = Buffer.from(msg.buffer);
 	let topic = MSG.MessageType.UNDEFINED;
-	if (cmd == "data") {
+	if (msg == "data") {
 		console.log('DATA MSG');
-		topic = MSG.MessageCommand.INPUT;
+		topic = MSG.MessageType.DATA;
 	} else {
 		console.log('UNDEFINED MSG');
 	}
-	var pub_topic = Buffer.from(msg.get_topic()); 
+	console.log('TOPIC: ' + topic.toString());
 	console.log('SENT ZMQ: ' + msg.toString());
-	publisher.send([pub_topic, outb]);
+	publisher.send([topic, outb]);
 	
 	// io.emit('chat message', msg);
   });
