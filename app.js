@@ -25,7 +25,9 @@ var subscriber = zmq.socket('sub');
 subscriber.connect('tcp://127.0.0.1:5555');
 console.log("Subscriber bound to port 5555");
 
-var sub_topic = Buffer.from(zeroPad(MSG.MessageType.DATA,3) + '.' + zeroPad(MSG.MessageCommand,3));
+var sts = 'T' + zeroPad(MSG.MessageType.DATA,3) + '.' + zeroPad(MSG.MessageCommand.PRINT,3);
+console.log("Subscribed to topic " + sts);
+var sub_topic = Buffer.from(sts);
 subscriber.subscribe(sub_topic);
 
 subscriber.on('message', function(topic, message) {
@@ -63,6 +65,7 @@ io.on('connection', (socket) => {
 		console.log('UNDEFINED MSG');
 	}
 	var pub_topic = Buffer.from(msg.get_topic()); 
+	console.log('TOPIC: ' + msg.get_topic());
 	console.log('SENT ZMQ: ' + msg.toString());
 	publisher.send([pub_topic, outb]);
 	

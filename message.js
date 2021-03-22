@@ -41,7 +41,7 @@ class Message {
 	}
 
 	get_topic() {
-		return zeroPad(this.get_type(),3) + '.' + zeroPad(this.get_cmd(),3);
+		return 'T' + zeroPad(this.get_type(),3) + '.' + zeroPad(this.get_cmd(),3);
 	}
 
 	set_payload_bit(idx) {
