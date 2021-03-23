@@ -29,6 +29,14 @@ body{
 .controls .alpha .alpha_bar #alpha_value { background-color: #555; border-radius: 1px; flex-basis: 100% }
 .controls .alpha .alpha_bar:hover { border-width: 2px; margin:-1px; }
 .controls .alpha .alpha_bar:active #alpha_value { background-color: #222 }
+.minicolumn {
+	fill: #555;
+}
+.container {
+	width: 250px;
+	height: 200px;
+	border: 1px solid #555;
+}
 
 
 /* SVG styles */
@@ -150,6 +158,7 @@ svg {
 </div>
 <div id="grid"></div>
 <script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/d3-scale.v3.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script src="code.js"></script>
     <script>

@@ -6,37 +6,53 @@ function sendUpdate(key, value ) {
 		socket.emit('param_update', {key,value});
 }
 
-socket.on('sdr_update ', (msg) => {
-    console.log('sdr_update: ' + msg);
-    // TODO: Update svg 
+socket.on('sdr ', (msg) => {
+	console.log('sdr: ' + msg);
+	sdr = msg; 
 });
 
+function btest(bit){
+	return ((sdr>>bit) % 2 != 0)
+}
+
+function is_active(idx) {
+	let byteIdx = (idx >> 3) + ploff;
+	let bitIdx = idx % 8;
+	sdr[byteIdx] = sdr[byteIdx] | 1 << bitIdx;
+}
+
+var ploff = 8;
+var n = 4096;
+var sdr = new Uint8Array(n + ploff); 
+var cmax = 64;
+var rmax = 64;
+
 function gridData() {
-    var data = new Array();
-    var xpos = 1; //starting xpos and ypos at 1 so the stroke will show when we make the grid below
-    var ypos = 1;
-    var width = 50;
-    var height = 50;
+	var data = new Array();
+	var xpos = 1; //starting xpos and ypos at 1 so the stroke will show when we make the grid below
+	var ypos = 1;
+	var width = 5;
+	var height = 5;
+	var offset = 5;
 
     // iterate for rows 
-    for (var row = 0; row < 10; row++) {
-        data.push( new Array() );
+	for (var row = 0; row < rmax; row++) {
+        	data.push( new Array() );
 
-        // iterate for cells/columns inside rows
-        for (var column = 0; column < 10; column++) {
-            data[row].push({
-                x: xpos,
-                y: ypos,
-                width: width,
-                height: height
-            })
-            // increment the x position. I.e. move it over by 50 (width variable)
-            xpos += width;
+	        // iterate for cells/columns inside rows
+		for (var column = 0; column < cmax; column++) {
+        		data[row].push({
+			x: xpos,
+			y: ypos,
+	        	width: width,
+        		height: height,
+			active: is_active(row*column+column)	
+		})
+		xpos += width + offset;
         }
         // reset the x position after a row is complete
         xpos = 1;
-        // increment the y position for the next row. Move it down 50 (height variable)
-        ypos += height; 
+        ypos += height + offset;
     }
     return data;
 }
@@ -64,7 +80,6 @@ var column = row.selectAll(".square")
 	.attr("width", function(d) { return d.width; })
 	.attr("height", function(d) { return d.height; })
 	.style("fill", "#fff")
-	.style("stroke", "#222")
 	.on('click', function(d) {
        d.click ++;
        if ((d.click)%4 == 0 ) { d3.select(this).style("fill","#fff"); }

@@ -13,7 +13,6 @@ const zeroPad = (num, places) => String(num).padStart(places, '0');
 
 
 const msgSize = MSG.PAYLOAD_OFFSET + MSG.DEF_PL_SIZE;
-console.log("MSG Size: " + msgSize);
 var msg = new Message(msgSize);
 
 
@@ -32,8 +31,9 @@ subscriber.subscribe(sub_topic);
 
 subscriber.on('message', function(topic, message) {
 	msg.parse(message);
-	console.log('TOPIC: ' + topic);
-	console.log('REC ZMQ: ' + msg.toString());
+	console.log('RECV MSG (TOPIC: ' + topic + ')');
+	// console.log('RECV ZMQ: ' + msg.toString());
+	io.emit('sdr', msg.arrayView);
 });
 
 app.use(express.static(__dirname + '/public'));
@@ -43,9 +43,8 @@ app.get('/', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-	console.log('On Connection'); 
-	socket.on('cmd', cmd => { 
-	console.log('RECV UI: ' + cmd); 
+	socket.on('cmd', cmd => {
+	console.log('RECV UI: ' + cmd);
 
 	msg.create_header(MSG.MessageType.DATA, MSG.MessageCommand.INPUT, MSG.MessageKey.S_INPUT);
 
@@ -59,17 +58,14 @@ io.on('connection', (socket) => {
 	const outb  = Buffer.from(msg.buffer);
 	let topic = MSG.MessageType.UNDEFINED;
 	if (cmd == "data") {
-		console.log('DATA MSG');
 		topic = MSG.MessageCommand.INPUT;
+		console.log('SENT MSG (TOPIC: ' + msg.get_topic() + ')');
+		// console.log('SENT ZMQ: ' + msg.toString());
+		var pub_topic = Buffer.from(msg.get_topic()); 
+		publisher.send([pub_topic, outb]);
 	} else {
 		console.log('UNDEFINED MSG');
 	}
-	var pub_topic = Buffer.from(msg.get_topic()); 
-	console.log('TOPIC: ' + msg.get_topic());
-	console.log('SENT ZMQ: ' + msg.toString());
-	publisher.send([pub_topic, outb]);
-	
-	// io.emit('chat message', msg);
   });
 });
 
