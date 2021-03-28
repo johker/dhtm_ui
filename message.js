@@ -55,6 +55,12 @@ class Message {
 		let bitIdx = idx % 8;
 		this.arrayView[byteIdx] = this.arrayView[byteIdx] & ~(1 << bitIdx);
 	}
+
+	is_active(idx) {
+		let byteIdx = (idx >> 3) + MSG.PAYLOAD_OFFSET;
+		let bitIdx = idx % 8;
+		return (this.arrayView[byteIdx] >> bitIdx) % 2 != 0;
+	}
 	
 	get_uid() {
 		// TODO Generate UID

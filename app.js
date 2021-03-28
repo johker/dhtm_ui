@@ -33,7 +33,7 @@ subscriber.on('message', function(topic, message) {
 	msg.parse(message);
 	console.log('RECV MSG (TOPIC: ' + topic + ')');
 	// console.log('RECV ZMQ: ' + msg.toString());
-	io.emit('sdr', msg.arrayView);
+	io.emit('sdr', msg.buffer);
 });
 
 app.use(express.static(__dirname + '/public'));
@@ -53,6 +53,8 @@ io.on('connection', (socket) => {
 	msg.set_payload_bit(7);
 	msg.set_payload_bit(8);
 	msg.clear_payload_bit(5);
+	console.log('Bit 5: ' + msg.is_active(5));
+	console.log('Bit 7: ' + msg.is_active(7));
 
 	const decoder = new StringDecoder('utf8');
 	const outb  = Buffer.from(msg.buffer);
