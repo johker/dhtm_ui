@@ -25,7 +25,7 @@ function is_active(msg, idx) {
 }
 
 
-function gridData() {
+function initGridData() {
 	var data = new Array();
 	var xpos = 1; //starting xpos and ypos at 1 so the stroke will show when we make the grid below
 	var ypos = 1;
@@ -43,7 +43,7 @@ function gridData() {
 			id: id,
 			x: xpos,
 			y: ypos,
-	        	width: width,
+			width: width,
 			height: height,
 			active: false	
 		})
@@ -54,6 +54,7 @@ function gridData() {
 	xpos = 1;
 	ypos += height + offset;
 	}
+	console.log("ID = " + id);
     return data;
 }
 
@@ -74,13 +75,13 @@ function updateGrid() {
 	
 }
 
-var gridData = gridData();	
+var gridData = initGridData();	
 // I like to log the data to the console for quick debugging
 
 var svg = d3.select("#grid")
 	.append("svg")
-	.attr("width","510px")
-	.attr("height","510px");
+	.attr("width","640px")
+	.attr("height","640px");
 	
 updateGrid();
 

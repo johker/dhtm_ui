@@ -32,7 +32,7 @@ subscriber.subscribe(sub_topic);
 subscriber.on('message', function(topic, message) {
 	msg.parse(message);
 	console.log('RECV MSG (TOPIC: ' + topic + ')');
-	// console.log('RECV ZMQ: ' + msg.toString());
+	console.log('RECV ZMQ: ' + msg.toString());
 	io.emit('sdr', msg.buffer);
 });
 
@@ -51,7 +51,7 @@ io.on('connection', (socket) => {
 	msg.set_payload_bit(3);
 	msg.set_payload_bit(5);
 	msg.set_payload_bit(7);
-	msg.set_payload_bit(8);
+	msg.set_payload_bit(80);
 	msg.clear_payload_bit(5);
 	console.log('Bit 5: ' + msg.is_active(5));
 	console.log('Bit 7: ' + msg.is_active(7));
