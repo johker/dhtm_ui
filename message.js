@@ -44,12 +44,17 @@ class Message {
 		return 'T' + zeroPad(this.get_type(),3) + '.' + zeroPad(this.get_cmd(),3);
 	}
 
+
 	set_payload_bit(idx) {
 		let byteIdx = (idx >> 3) + MSG.PAYLOAD_OFFSET;
 		let bitIdx = idx % 8;
 		this.arrayView[byteIdx] = this.arrayView[byteIdx] | 1 << bitIdx;
 	}
 	
+	set_payload_float(value) {
+		this.dataView.setFloat32(MSG.PAYLOAD_OFFSET, value)
+	}
+
 	clear_payload_bit(idx) {
 		let byteIdx = (idx >> 3) + MSG.PAYLOAD_OFFSET;
 		let bitIdx = idx % 8;

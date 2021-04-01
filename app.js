@@ -15,6 +15,10 @@ const zeroPad = (num, places) => String(num).padStart(places, '0');
 const msgSize = MSG.PAYLOAD_OFFSET + MSG.DEF_PL_SIZE;
 var msg = new Message(msgSize);
 
+function resolve(path, obj=self, separator='.') {
+	    var properties = Array.isArray(path) ? path : path.split(separator)
+	    return properties.reduce((prev, curr) => prev && prev[curr], obj)
+}
 
 var publisher = zmq.socket("pub");
 publisher.connect("tcp://127.0.0.1:6000");
@@ -36,38 +40,47 @@ subscriber.on('message', function(topic, message) {
 	io.emit('sdr', msg.buffer);
 });
 
-app.use(express.static(__dirname + '/public'));
+
+app.use('/public', express.static(__dirname + '/public'));
 
 app.get('/', (req, res) => {
 	res.sendFile(__dirname + '/index.html');
 });
 
 io.on('connection', (socket) => {
+	
+	socket.on('param', param => {
+		console.log(param.key);
+		msg.create_header(MSG.MessageType.CONFIGURATION, MSG.MessageCommand.WRITE, resolve(param.key, MSG));
+		msg.set_payload_float(param.value);
+		publisher.send([Buffer.from(msg.get_topic()), Buffer.from(msg.buffer)]);
+	});
+
 	socket.on('cmd', cmd => {
-	console.log('RECV UI: ' + cmd);
+		console.log('RECV UI: ' + cmd);
 
-	msg.create_header(MSG.MessageType.DATA, MSG.MessageCommand.INPUT, MSG.MessageKey.S_INPUT);
+		msg.create_header(MSG.MessageType.DATA, MSG.MessageCommand.INPUT, MSG.MessageKey.S_INPUT);
 
-	msg.set_payload_bit(3);
-	msg.set_payload_bit(5);
-	msg.set_payload_bit(7);
-	msg.set_payload_bit(80);
-	msg.clear_payload_bit(5);
-	console.log('Bit 5: ' + msg.is_active(5));
-	console.log('Bit 7: ' + msg.is_active(7));
+		msg.set_payload_bit(3);
+		msg.set_payload_bit(5);
+		msg.set_payload_bit(7);
+		msg.set_payload_bit(80);
+		msg.clear_payload_bit(5);
+		console.log('Bit 5: ' + msg.is_active(5));
+		console.log('Bit 7: ' + msg.is_active(7));
 
-	const decoder = new StringDecoder('utf8');
-	const outb  = Buffer.from(msg.buffer);
-	let topic = MSG.MessageType.UNDEFINED;
-	if (cmd == "data") {
-		topic = MSG.MessageCommand.INPUT;
-		console.log('SENT MSG (TOPIC: ' + msg.get_topic() + ')');
-		// console.log('SENT ZMQ: ' + msg.toString());
-		var pub_topic = Buffer.from(msg.get_topic()); 
-		publisher.send([pub_topic, outb]);
-	} else {
-		console.log('UNDEFINED MSG');
-	}
+		const decoder = new StringDecoder('utf8');
+		const outb  = Buffer.from(msg.buffer);
+		let topic = MSG.MessageType.UNDEFINED;
+		if (cmd == "data") {
+			topic = MSG.MessageCommand.INPUT;
+			console.log('SENT MSG (TOPIC: ' + msg.get_topic() + ')');
+			// console.log('SENT ZMQ: ' + msg.toString());
+			var pub_topic = Buffer.from(msg.get_topic()); 
+			publisher.send([pub_topic, outb]);
+		} else {
+			console.log('UNDEFINED MSG');
+		}
   });
 });
 

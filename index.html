@@ -56,111 +56,32 @@ svg {
 <body>
 <div class="controls">
   <div class="force alpha">
-    <p><label>alpha</label> Simulation activity</p>
-    <div class="alpha_bar" onclick="updateAll();"><div id="alpha_value"></div></div>
+    <p><label>HTM</label> Hierarchical Temporal Memory</p>
   </div>
+
   <div class="force">
-    <p><label>center</label> Shifts the view, so the graph is centered at this location.</p>
-    <label>
-      x
-      <output id="center_XSliderOutput">.5</output>
-      <input type="range" min="0" max="1" value=".5" step="0.01" oninput="d3.select('#center_XSliderOutput').text(value); sendUpdate('xs1', value);">
+    <p><label>Scalar Encoder</label> Encodes a numeric (floating point) value into an array
+     of bits.</p>
+    <label title="Scalar value to encode.">
+      value = 
+      <output id="id_rawdat">100</output>
+      <input type="range" min="0" max="100" value="50" step="1" oninput="d3.select('#id_rawdat').text(value);  sendUpdate('MessageKey.P_RAWDAT', value);">
     </label>
-    <form id="form" action="">
-      <input id="input" autocomplete="off" /><button>Send</button>
+     <form id="form" action="">
+    	<input id="input" autocomplete="off" /><button>Send</button>
     </form>
-    <label>
-      y
-      <output id="center_YSliderOutput">.5</output>
-      <input type="range" min="0" max="1" value=".5" step="0.01" oninput="d3.select('#center_YSliderOutput').text(value);  sendUpdate('xs', value);">
-    </label>
-  </div>
-
-  <div class="force">
-    <p><label><input type="checkbox" checked onchange="forceProperties.charge.enabled = this.checked; updateAll();"> charge</label> Attracts (+) or repels (-) nodes to/from each other.</p>
-    <label title="Negative strength repels nodes. Positive strength attracts nodes.">
-      strength
-      <output id="charge_StrengthSliderOutput">-30</output>
-      <input type="range" min="-200" max="50" value="-30" step=".1" oninput="d3.select('#charge_StrengthSliderOutput').text(value);  sendUpdate('xs2', value);">
-    </label>
-    <label title="Minimum distance where force is applied">
-      distanceMin
-      <output id="charge_distanceMinSliderOutput">1</output>
-      <input type="range" min="0" max="50" value="1" step=".1" oninput="d3.select('#charge_distanceMinSliderOutput').text(value);  sendUpdate('xs3', value);">
-    </label>
-    <label title="Maximum distance where force is applied">
-      distanceMax
-      <output id="charge_distanceMaxSliderOutput">2000</output>
-      <input type="range" min="0" max="2000" value="2000" step=".1" oninput="d3.select('#charge_distanceMaxSliderOutput').text(value);  sendUpdate('xs4', value);">
-    </label>
-  </div>
-
-  <div class="force">
-    <p><label><input type="checkbox" checked onchange="forceProperties.collide.enabled = this.checked; updateAll();"> collide</label> Prevents nodes from overlapping</p>
-    <label>
-      strength
-      <output id="collide_StrengthSliderOutput">.7</output>
-      <input type="range" min="0" max="2" value=".7" step=".1" oninput="d3.select('#collide_StrengthSliderOutput').text(value);  sendUpdate('xs', value);">
-    </label>
-    <label title="Size of nodes">
-      radius
-      <output id="collide_radiusSliderOutput">5</output>
-      <input type="range" min="0" max="100" value="5" step="1" oninput="d3.select('#collide_radiusSliderOutput').text(value);  sendUpdate('xs', value);">
-    </label>
-    <label title="Higher values increase rigidity of the nodes (WARNING: high values are computationally expensive)">
-      iterations
-      <output id="collide_iterationsSliderOutput">1</output>
-      <input type="range" min="1" max="10" value="1" step="1" oninput="d3.select('#collide_iterationsSliderOutput').text(value);  sendUpdate('xs', value);">
-    </label>
-  </div>
-
-  <div class="force">
-    <p><label><input type="checkbox" onchange="forceProperties.forceX.enabled = this.checked; updateAll();"> forceX</label> Acts like gravity. Pulls all points towards an X location.</p>
-    <label>
-      strength
-      <output id="forceX_StrengthSliderOutput">.1</output>
-      <input type="range" min="0" max="1" value=".1" step="0.01" oninput="d3.select('#forceX_StrengthSliderOutput').text(value);  sendUpdate('xs', value);">
-    </label>
-    <label title="The X location that the force will push the nodes to (NOTE: This demo multiplies by the svg width)">
-      x
-      <output id="forceX_XSliderOutput">.5</output>
-      <input type="range" min="0" max="1" value=".5" step="0.01" oninput="d3.select('#forceX_XSliderOutput').text(value);  sendUpdate('xs', value);">
-    </label>
-  </div>
-
-  <div class="force">
-    <p><label><input type="checkbox" onchange="forceProperties.forceY.enabled = this.checked; updateAll();"> forceY</label> Acts like gravity. Pulls all points towards a Y location.</p>
-    <label>
-      strength
-      <output id="forceY_StrengthSliderOutput">.1</output>
-      <input type="range" min="0" max="1" value=".1" step="0.01" oninput="d3.select('#forceY_StrengthSliderOutput').text(value);  sendUpdate('xs', value);">
-    </label>
-    <label title="The Y location that the force will push the nodes to (NOTE: This demo multiplies by the svg height)">
-      y
-      <output id="forceY_YSliderOutput">.5</output>
-      <input type="range" min="0" max="1" value=".5" step="0.01" oninput="d3.select('#forceY_YSliderOutput').text(value);  sendUpdate('xs', value);">
-    </label>
-  </div>
-
-  <div class="force">
-    <p><label><input type="checkbox" checked onchange="forceProperties.link.enabled = this.checked; updateAll();"> link</label> Sets link length</p>
-    <label title="The force will push/pull nodes to make links this long">
-      distance
-      <output id="link_DistanceSliderOutput">30</output>
-      <input type="range" min="0" max="100" value="30" step="1" oninput="d3.select('#link_DistanceSliderOutput').text(value);  sendUpdate('xs', value);">
-    </label>
-    <label title="Higher values increase rigidity of the links (WARNING: high values are computationally expensive)">
-      iterations
-      <output id="link_IterationsSliderOutput">1</output>
-      <input type="range" min="1" max="10" value="1" step="1" oninput="d3.select('#link_IterationsSliderOutput').text(value);  sendUpdate('xs', value);">
-    </label>
   </div>
 </div>
 <div id="grid"></div>
+<script type="module">
+	import MessageKey from './public/msg.js'
+	console.log(MessageKey) // output 10
+</script>
 <script src="https://d3js.org/d3.v5.min.js"></script>
 <script src="https://d3js.org/d3-scale.v3.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
-<script src="code.js"></script>
+<script src="./public/code.js"></script>
+<script src="./public/msg.js"></script>
     <script>
       var socket = io();
 

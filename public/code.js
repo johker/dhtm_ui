@@ -4,9 +4,8 @@ var n = 4096;
 var cmax = 64;
 
 
-function sendUpdate(key, value ) {
-		console.log('Sending Update: k=' + key + ', v=' + value)
-		socket.emit('param_update', {key,value});
+function sendUpdate(key, value) {
+	socket.emit('param', {key,value});
 }
 
 socket.on('sdr', (msg) => {
