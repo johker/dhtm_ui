@@ -3,9 +3,12 @@ var ploff = 8;
 var n = 4096;
 var cmax = 64;
 
+function sendData(key, value) {
+	socket.emit('data', {key,value});
+}
 
-function sendUpdate(key, value) {
-	socket.emit('param', {key,value});
+function sendConfig(key, value) {
+	socket.emit('config', {key,value});
 }
 
 socket.on('sdr', (msg) => {

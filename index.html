@@ -65,7 +65,7 @@ svg {
     <label title="Scalar value to encode.">
       value = 
       <output id="id_rawdat">100</output>
-      <input type="range" min="0" max="100" value="50" step="1" oninput="d3.select('#id_rawdat').text(value);  sendUpdate('MessageKey.P_RAWDAT', value);">
+      <input type="range" min="0" max="100" value="50" step="1" oninput="d3.select('#id_rawdat').text(value);  sendConfig('MessageKey.D_RAWDAT', value);">
     </label>
      <form id="form" action="">
     	<input id="input" autocomplete="off" /><button>Send</button>
@@ -73,10 +73,6 @@ svg {
   </div>
 </div>
 <div id="grid"></div>
-<script type="module">
-	import MessageKey from './public/msg.js'
-	console.log(MessageKey) // output 10
-</script>
 <script src="https://d3js.org/d3.v5.min.js"></script>
 <script src="https://d3js.org/d3-scale.v3.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>

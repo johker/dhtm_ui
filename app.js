@@ -49,25 +49,29 @@ app.get('/', (req, res) => {
 
 io.on('connection', (socket) => {
 	
-	socket.on('param', param => {
-		console.log(param.key);
+	socket.on('data', param => {
+		msg.create_header(MSG.MessageType.DATA, MSG.MessageCommand.WRITE, resolve(param.key, MSG));
+		msg.set_payload_float(param.value);
+		publisher.send([Buffer.from(msg.get_topic()), Buffer.from(msg.buffer)]);
+		console.log('SENT MSG (TOPIC: ' + msg.get_topic() + ')');
+	});
+
+	socket.on('config', param => {
 		msg.create_header(MSG.MessageType.CONFIGURATION, MSG.MessageCommand.WRITE, resolve(param.key, MSG));
 		msg.set_payload_float(param.value);
 		publisher.send([Buffer.from(msg.get_topic()), Buffer.from(msg.buffer)]);
+		console.log('SENT MSG (TOPIC: ' + msg.get_topic() + ')');
 	});
 
 	socket.on('cmd', cmd => {
-		console.log('RECV UI: ' + cmd);
 
-		msg.create_header(MSG.MessageType.DATA, MSG.MessageCommand.INPUT, MSG.MessageKey.S_INPUT);
+		msg.create_header(MSG.MessageType.DATA, MSG.MessageCommand.WRITE, MSG.MessageKey.D_INPUT);
 
 		msg.set_payload_bit(3);
 		msg.set_payload_bit(5);
 		msg.set_payload_bit(7);
 		msg.set_payload_bit(80);
 		msg.clear_payload_bit(5);
-		console.log('Bit 5: ' + msg.is_active(5));
-		console.log('Bit 7: ' + msg.is_active(7));
 
 		const decoder = new StringDecoder('utf8');
 		const outb  = Buffer.from(msg.buffer);
